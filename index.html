@@ -57,9 +57,9 @@
     .result {
       font-weight: bold;
       font-size: 2em;
-      color: #;
+      color: #2D3748; /* Corrigido para uma cor válida */
       margin-left: 10px;
-		margin-top:30px;
+      margin-top: 30px;
     }
 
     .exchange-info {
@@ -80,17 +80,16 @@
     <div class="input-container">
       <div class="input-group">
         <label for="euros">Euros (€):</label>
-        <input type="number" id="euros" value="0" min="0" step="0.01">
-
+        <input type="number" id="euros" value="1" min="0" step="0.01">
       </div>
       <div class="result">
         R$ <span id="conversion-result">0,00</span>
       </div>
     </div>
-	          <div class="exchange-info">
-          Taxa de Câmbio: R$ <span id="exchange-rate">6,01</span><br>
-          <small>Atualizado em: <span id="last-updated">09/08/2024</span></small>
-        </div>
+    <div class="exchange-info">
+      Taxa de Câmbio: R$ <span id="exchange-rate">6,01</span><br>
+      <small>Atualizado em: <span id="last-updated">09/08/2024</span></small>
+    </div>
   </div>
 
   <script>
@@ -101,14 +100,17 @@
       try {
         const response = await fetch(apiUrl);
         const data = await response.json();
-        const rate = data.conversion_rates.BRL;
-        document.getElementById('rate').value = rate.toFixed(2);
+        let rate = data.conversion_rates.BRL;
+
+        // Adicionando 0,9% de spread e 1,1% de IOF
+        rate = rate * 1.009 * 1.011;
+
         document.getElementById('exchange-rate').textContent = rate.toFixed(2).replace('.', ',');
         document.getElementById('last-updated').textContent = new Date().toLocaleDateString('pt-BR');
         updateConversion();
       } catch (error) {
         console.error('Erro ao buscar taxa de câmbio:', error);
-        document.getElementById('rate').value = "Erro";
+        document.getElementById('exchange-rate').textContent = "Erro";
       }
     }
 
@@ -121,14 +123,6 @@
     }
 
     document.getElementById("euros").addEventListener("input", updateConversion);
-    document.getElementById("reais").addEventListener("input", function() {
-      const reais = parseFloat(document.getElementById("reais").value);
-      const rate = parseFloat(document.getElementById("exchange-rate").textContent.replace(',', '.'));
-      const euros = (reais / rate).toFixed(2).replace('.', ',');
-
-      document.getElementById("conversion-result").textContent = reais.toFixed(2).replace('.', ',');
-      document.getElementById("euros").value = euros;
-    });
 
     // Buscar a taxa de câmbio atual ao carregar a página
     fetchExchangeRate();
