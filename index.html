@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Moeda</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #ffffff;
+      color: #37352F;
+      font-family: 'Courier New', Courier, monospace;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #converter {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      max-width: 350px;
+      width: 100%;
+    }
+
+    .input-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .input-group label {
+      margin-bottom: 5px;
+      font-size: 1.2em;
+    }
+
+    .input-group input {
+      padding: 10px 15px;
+      font-size: 1em;
+      text-align: center;
+      border: 1px solid #E5E5E5;
+      border-radius: 4px;
+      width: 150px;
+    }
+
+    .result {
+      font-weight: bold;
+      font-size: 2em;
+      color: #2D3748;
+      margin-left: 10px;
+		margin-top:30px;
+    }
+
+    .exchange-info {
+      font-size: 0.9em;
+      color: #4A5568;
+      text-align: left;
+      margin-top: 5px;
+    }
+
+    .exchange-info small {
+      font-size: 0.8em;
+      color: #A0AEC0;
+    }
+  </style>
+</head>
+<body>
+  <div id="converter">
+    <div class="input-container">
+      <div class="input-group">
+        <label for="euros">Euros (€):</label>
+        <input type="number" id="euros" value="1" min="0" step="0.01">
+
+      </div>
+      <div class="result">
+        R$ <span id="conversion-result">0,00</span>
+      </div>
+    </div>
+	          <div class="exchange-info">
+          Taxa de Câmbio: <span id="exchange-rate">6,01</span><br>
+          <small>Atualizado em: <span id="last-updated">09/08/2024</span></small>
+        </div>
+  </div>
+
+  <script>
+    const apiKey = '88f76553d0e354125ec68dc5'; // Substitua com sua API Key da ExchangeRate-API
+    const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/EUR`;
+
+    async function fetchExchangeRate() {
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        const rate = data.conversion_rates.BRL;
+        document.getElementById('rate').value = rate.toFixed(2);
+        document.getElementById('exchange-rate').textContent = rate.toFixed(2).replace('.', ',');
+        document.getElementById('last-updated').textContent = new Date().toLocaleDateString('pt-BR');
+        updateConversion();
+      } catch (error) {
+        console.error('Erro ao buscar taxa de câmbio:', error);
+        document.getElementById('rate').value = "Erro";
+      }
+    }
+
+    function updateConversion() {
+      const euros = parseFloat(document.getElementById("euros").value);
+      const rate = parseFloat(document.getElementById("exchange-rate").textContent.replace(',', '.'));
+      const reais = (euros * rate).toFixed(2).replace('.', ',');
+
+      document.getElementById("conversion-result").textContent = reais;
+    }
+
+    document.getElementById("euros").addEventListener("input", updateConversion);
+    document.getElementById("reais").addEventListener("input", function() {
+      const reais = parseFloat(document.getElementById("reais").value);
+      const rate = parseFloat(document.getElementById("exchange-rate").textContent.replace(',', '.'));
+      const euros = (reais / rate).toFixed(2).replace('.', ',');
+
+      document.getElementById("conversion-result").textContent = reais.toFixed(2).replace('.', ',');
+      document.getElementById("euros").value = euros;
+    });
+
+    // Buscar a taxa de câmbio atual ao carregar a página
+    fetchExchangeRate();
+  </script>
+</body>
+</html>
