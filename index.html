@@ -22,7 +22,7 @@
       flex-direction: column;
       align-items: flex-start;
       text-align: left;
-      max-width: 350px;
+      max-width: fit-content;
       width: 100%;
     }
 
@@ -57,21 +57,21 @@
     .result {
       font-weight: bold;
       font-size: 2em;
-      color: #2D3748;
+      color: #;
       margin-left: 10px;
 		margin-top:30px;
     }
 
     .exchange-info {
       font-size: 0.9em;
-      color: #4A5568;
+      color: #606060;
       text-align: left;
       margin-top: 5px;
     }
 
     .exchange-info small {
       font-size: 0.8em;
-      color: #A0AEC0;
+      color: #919191;
     }
   </style>
 </head>
@@ -80,7 +80,7 @@
     <div class="input-container">
       <div class="input-group">
         <label for="euros">Euros (€):</label>
-        <input type="number" id="euros" value="1" min="0" step="0.01">
+        <input type="number" id="euros" value="100" min="0" step="0.01">
 
       </div>
       <div class="result">
@@ -88,7 +88,7 @@
       </div>
     </div>
 	          <div class="exchange-info">
-          Taxa de Câmbio: <span id="exchange-rate">6,01</span><br>
+          Taxa de Câmbio: R$ <span id="exchange-rate">6,01</span><br>
           <small>Atualizado em: <span id="last-updated">09/08/2024</span></small>
         </div>
   </div>
