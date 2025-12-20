@@ -103,7 +103,7 @@
         let rate = data.conversion_rates.BRL;
 
         // Adicionando 0,9% de spread e 3,5% de IOF
-        rate = rate * 1.009 * 3.500;
+        rate = rate * 1.009 * 1.035;
 
         document.getElementById('exchange-rate').textContent = rate.toFixed(2).replace('.', ',');
         document.getElementById('last-updated').textContent = new Date().toLocaleDateString('pt-BR');
