@@ -57,7 +57,7 @@
     .result {
       font-weight: bold;
       font-size: 2em;
-      color: #2D3748; /* Corrigido para uma cor válida */
+      color: #2D3748;
       margin-left: 10px;
       margin-top: 30px;
     }
@@ -67,11 +67,14 @@
       color: #606060;
       text-align: left;
       margin-top: 5px;
+      line-height: 1.6;
     }
 
     .exchange-info small {
       font-size: 0.8em;
       color: #919191;
+      display: block;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -86,46 +89,59 @@
         R$ <span id="conversion-result">0,00</span>
       </div>
     </div>
+    
     <div class="exchange-info">
-      Taxa de Câmbio: R$ <span id="exchange-rate">6,01</span><br>
-      <small>Atualizado em: <span id="last-updated">09/08/2024</span></small>
+      Taxa de Câmbio (Euro): R$ <span id="rate-eur">--</span><br>
+      Taxa de Câmbio (Libra): R$ <span id="rate-gbp">--</span>
+      <small>Atualizado em: <span id="last-updated">--/--/----</span></small>
     </div>
   </div>
 
   <script>
-    const apiKey = '88f76553d0e354125ec68dc5'; // Substitua com sua API Key da ExchangeRate-API
-    const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/EUR`;
+    const apiKey = '88f76553d0e354125ec68dc5'; 
+    const spread = 1.009; // 0,9%
+    const iof = 1.035;    // 3,5%
 
-    async function fetchExchangeRate() {
+    async function fetchRates() {
       try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        let rate = data.conversion_rates.BRL;
+        // Busca Euro
+        const resEur = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/EUR`);
+        const dataEur = await resEur.json();
+        let rateEur = dataEur.conversion_rates.BRL * spread * iof;
 
-        // Adicionando 0,9% de spread e 3,5% de IOF
-        rate = rate * 1.009 * 1.035;
+        // Busca Libra (GBP)
+        const resGbp = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/GBP`);
+        const dataGbp = await resGbp.json();
+        let rateGbp = dataGbp.conversion_rates.BRL * spread * iof;
 
-        document.getElementById('exchange-rate').textContent = rate.toFixed(2).replace('.', ',');
+        // Atualiza a interface
+        document.getElementById('rate-eur').textContent = rateEur.toFixed(2).replace('.', ',');
+        document.getElementById('rate-gbp').textContent = rateGbp.toFixed(2).replace('.', ',');
         document.getElementById('last-updated').textContent = new Date().toLocaleDateString('pt-BR');
+        
         updateConversion();
       } catch (error) {
-        console.error('Erro ao buscar taxa de câmbio:', error);
-        document.getElementById('exchange-rate').textContent = "Erro";
+        console.error('Erro ao buscar taxas:', error);
+        document.getElementById('rate-eur').textContent = "Erro";
+        document.getElementById('rate-gbp').textContent = "Erro";
       }
     }
 
     function updateConversion() {
-      const euros = parseFloat(document.getElementById("euros").value);
-      const rate = parseFloat(document.getElementById("exchange-rate").textContent.replace(',', '.'));
-      const reais = (euros * rate).toFixed(2).replace('.', ',');
-
-      document.getElementById("conversion-result").textContent = reais;
+      const euros = parseFloat(document.getElementById("euros").value) || 0;
+      const rateText = document.getElementById('rate-eur').textContent.replace(',', '.');
+      const rate = parseFloat(rateText);
+      
+      if (!isNaN(rate)) {
+        const reais = (euros * rate).toFixed(2).replace('.', ',');
+        document.getElementById("conversion-result").textContent = reais;
+      }
     }
 
     document.getElementById("euros").addEventListener("input", updateConversion);
 
-    // Buscar a taxa de câmbio atual ao carregar a página
-    fetchExchangeRate();
+    // Inicializa
+    fetchRates();
   </script>
 </body>
 </html>
