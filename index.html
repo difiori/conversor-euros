@@ -4,453 +4,257 @@
 
 <head>
 
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Widget de Clima</title>
+  <title>Conversor de Moeda</title>
 
-<style>
+  <style>
 
-body {
+    body {
 
-font-family: 'Courier New', Courier, monospace;
+      margin: 0;
 
-display: flex;
+      padding: 20px;
 
-justify-content: center;
+      background-color: #ffffff;
 
-align-items: center;
+      color: #37352F;
 
-height: 100vh;
+      font-family: 'Courier New', Courier, monospace;
 
-margin: 0;
+      align-items: center;
 
-}
+      justify-content: center;
 
+      display: flex;
 
+      flex-direction: column;
 
-.weather-widget {
+    }
 
-padding: 20px;
 
-text-align: center;
 
-max-width: 800px;
+    #converter {
 
-width: 100%;
+      display: flex;
 
-}
+      flex-direction: column;
 
+      align-items: flex-start;
 
+      text-align: left;
 
-.tabs {
+      max-width: fit-content;
 
-display: flex;
+      width: 100%;
 
-justify-content: center;
+    }
 
-margin-bottom: 20px;
 
-}
 
+    .input-container {
 
+      display: flex;
 
-.tab {
+      justify-content: space-between;
 
-padding: 10px 20px;
+      align-items: center;
 
-cursor: pointer;
+      width: 100%;
 
-font-weight: bold;
+      margin-bottom: 10px;
 
-border-bottom: 2px solid transparent;
+    }
 
-}
 
 
+    .input-group {
 
-.tab.active {
+      display: flex;
 
-border-bottom: 2px solid #000;
+      flex-direction: column;
 
-}
+      align-items: flex-start;
 
+    }
 
 
-.city-weather {
 
-display: none;
+    .input-group label {
 
-}
+      margin-bottom: 5px;
 
+      font-size: 1.2em;
 
+    }
 
-.city-weather.active {
 
-display: block;
 
-}
+    .input-group input {
 
+      padding: 10px 15px;
 
+      font-size: 1em;
 
-.city-weather h2 {
+      text-align: center;
 
-margin: 0;
+      border: 1px solid #E5E5E5;
 
-font-size: 24px;
+      border-radius: 4px;
 
-font-weight: 600;
+      width: 150px;
 
-color: #444;
+    }
 
-}
 
 
+    .result {
 
-.current-weather {
+      font-weight: bold;
 
-display: flex;
+      font-size: 2em;
 
-flex-direction: column;
+      color: #2D3748; /* Corrigido para uma cor válida */
 
-align-items: center;
+      margin-left: 10px;
 
-margin: 20px 0;
+      margin-top: 30px;
 
-font-size: 2rem;
+    }
 
-}
 
 
+    .exchange-info {
 
-.current-weather img {
+      font-size: 0.9em;
 
-width: 50px;
+      color: #606060;
 
-height: 50px;
+      text-align: left;
 
-}
+      margin-top: 5px;
 
+    }
 
 
-.forecast {
 
-display: flex;
+    .exchange-info small {
 
-justify-content: space-between;
+      font-size: 0.8em;
 
-margin-top: 20px;
+      color: #919191;
 
-}
+    }
 
-
-
-.forecast .day {
-
-text-align: center;
-
-font-size: 0.9rem;
-
-flex: 1;
-
-}
-
-
-
-.forecast .day img {
-
-width: 40px;
-
-height: 40px;
-
-margin-bottom: 5px;
-
-}
-
-
-
-.forecast .day span {
-
-display: block;
-
-color: #444;
-
-}
-
-</style>
+  </style>
 
 </head>
 
 <body>
 
-<div class="weather-widget">
+  <div id="converter">
 
-<div class="tabs">
+    <div class="input-container">
 
-<div class="tab active" onclick="showCity('barcelona')">Barcelona</div>
+      <div class="input-group">
 
-<div class="tab" onclick="showCity('madrid')">Madrid</div>
+        <label for="euros">Euros (€):</label>
 
-<div class="tab" onclick="showCity('saopaulo')">São Paulo</div>
+        <input type="number" id="euros" value="1" min="0" step="0.01">
 
-</div>
+      </div>
 
+      <div class="result">
 
+        R$ <span id="conversion-result">0,00</span>
 
-<div id="barcelona" class="city-weather active">
+      </div>
 
-<h2>BARCELONA</h2>
+    </div>
 
-<div class="current-weather">
+    <div class="exchange-info">
 
-<img id="current-icon-barcelona" src="https://basmilius.github.io/weather-icons/production/fill/all/clear-day.svg" alt="Sunny">
+      Taxa de Câmbio: R$ <span id="exchange-rate">6,01</span><br>
 
-<span id="current-temp-barcelona">31°C</span>
+      <small>Atualizado em: <span id="last-updated">09/08/2024</span></small>
 
-</div>
+    </div>
 
-<div class="forecast" id="forecast-barcelona"></div>
+  </div>
 
-</div>
 
 
+  <script>
 
-<div id="madrid" class="city-weather">
+    const apiKey = '88f76553d0e354125ec68dc5'; // Substitua com sua API Key da ExchangeRate-API
 
-<h2>MADRID</h2>
+    const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/EUR`;
 
-<div class="current-weather">
 
-<img id="current-icon-madrid" src="https://basmilius.github.io/weather-icons/production/fill/all/clear-day.svg" alt="Sunny">
 
-<span id="current-temp-madrid">31°C</span>
+    async function fetchExchangeRate() {
 
-</div>
+      try {
 
-<div class="forecast" id="forecast-madrid"></div>
+        const response = await fetch(apiUrl);
 
-</div>
+        const data = await response.json();
 
+        let rate = data.conversion_rates.BRL;
 
 
-<div id="saopaulo" class="city-weather">
 
-<h2>SÃO PAULO</h2>
+        // Adicionando 0,9% de spread e 3,5% de IOF
 
-<div class="current-weather">
+        rate = rate * 1.009 * 1.035;
 
-<img id="current-icon-saopaulo" src="https://basmilius.github.io/weather-icons/production/fill/all/clear-day.svg" alt="Sunny">
 
-<span id="current-temp-saopaulo">31°C</span>
 
-</div>
+        document.getElementById('exchange-rate').textContent = rate.toFixed(2).replace('.', ',');
 
-<div class="forecast" id="forecast-saopaulo"></div>
+        document.getElementById('last-updated').textContent = new Date().toLocaleDateString('pt-BR');
 
-</div>
+        updateConversion();
 
-</div>
+      } catch (error) {
 
+        console.error('Erro ao buscar taxa de câmbio:', error);
 
+        document.getElementById('exchange-rate').textContent = "Erro";
 
-<script>
+      }
 
-const apiKey = 'fa7a51c82e7fc59d3ca889505f94dcd2';
+    }
 
 
 
-const cities = [
+    function updateConversion() {
 
-{ id: 'barcelona', name: 'Barcelona' },
+      const euros = parseFloat(document.getElementById("euros").value);
 
-{ id: 'madrid', name: 'Madrid' },
+      const rate = parseFloat(document.getElementById("exchange-rate").textContent.replace(',', '.'));
 
-{ id: 'saopaulo', name: 'São Paulo' }
+      const reais = (euros * rate).toFixed(2).replace('.', ',');
 
-];
 
 
+      document.getElementById("conversion-result").textContent = reais;
 
-async function fetchWeatherData(city) {
+    }
 
-const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city.name}&units=metric&lang=pt_br&appid=${apiKey}`;
 
-try {
 
-const response = await fetch(apiUrl);
+    document.getElementById("euros").addEventListener("input", updateConversion);
 
-const data = await response.json();
 
 
+    // Buscar a taxa de câmbio atual ao carregar a página
 
-// Atualiza o clima atual
+    fetchExchangeRate();
 
-const currentWeather = data.list[0];
-
-document.getElementById(`current-temp-${city.id}`).textContent = `${Math.round(currentWeather.main.temp)}°C`;
-
-document.getElementById(`current-icon-${city.id}`).src = getWeatherIcon(currentWeather.weather[0].icon);
-
-
-
-// Atualiza a previsão dos próximos 5 dias
-
-const forecastContainer = document.getElementById(`forecast-${city.id}`);
-
-forecastContainer.innerHTML = ''; // Limpa o conteúdo anterior
-
-
-
-const daysForecast = [];
-
-let previousDate = '';
-
-
-
-for (let i = 0; i < data.list.length; i++) {
-
-const dayData = data.list[i];
-
-const date = new Date(dayData.dt_txt);
-
-const dayName = date.toLocaleDateString('pt-BR', { weekday: 'long' });
-
-
-
-// Garantir que exiba apenas um registro por dia
-
-if (dayName !== previousDate && daysForecast.length < 5) {
-
-previousDate = dayName;
-
-const tempMax = Math.round(dayData.main.temp_max);
-
-const tempMin = Math.round(dayData.main.temp_min);
-
-const weatherIcon = getWeatherIcon(dayData.weather[0].icon);
-
-
-
-daysForecast.push(`
-
-<div class="day">
-
-<span>${dayName}</span>
-
-<img src="${weatherIcon}" alt="${dayData.weather[0].description}">
-
-<span>max. ${tempMax}°C</span>
-
-<span>min. ${tempMin}°C</span>
-
-</div>
-
-`);
-
-}
-
-}
-
-
-
-forecastContainer.innerHTML = daysForecast.join('');
-
-} catch (error) {
-
-console.error(`Erro ao buscar dados do clima para ${city.name}:`, error);
-
-}
-
-}
-
-
-
-function getWeatherIcon(iconCode) {
-
-const iconMap = {
-
-'01d': 'https://basmilius.github.io/weather-icons/production/fill/all/clear-day.svg',
-
-'01n': 'https://basmilius.github.io/weather-icons/production/fill/all/clear-night.svg',
-
-'02d': 'https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg',
-
-'02n': 'https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-night.svg',
-
-'03d': 'https://basmilius.github.io/weather-icons/production/fill/all/cloudy.svg',
-
-'03n': 'https://basmilius.github.io/weather-icons/production/fill/all/cloudy.svg',
-
-'04d': 'https://basmilius.github.io/weather-icons/production/fill/all/overcast-day.svg',
-
-'04n': 'https://basmilius.github.io/weather-icons/production/fill/all/overcast-night.svg',
-
-'09d': 'https://basmilius.github.io/weather-icons/production/fill/all/rain.svg',
-
-'09n': 'https://basmilius.github.io/weather-icons/production/fill/all/rain.svg',
-
-'10d': 'https://basmilius.github.io/weather-icons/production/fill/all/rain.svg',
-
-'10n': 'https://basmilius.github.io/weather-icons/production/fill/all/rain.svg',
-
-'11d': 'https://basmilius.github.io/weather-icons/production/fill/all/thunderstorms-day.svg',
-
-'11n': 'https://basmilius.github.io/weather-icons/production/fill/all/thunderstorms-night.svg',
-
-'13d': 'https://basmilius.github.io/weather-icons/production/fill/all/snow.svg',
-
-'13n': 'https://basmilius.github.io/weather-icons/production/fill/all/snow.svg',
-
-'50d': 'https://basmilius.github.io/weather-icons/production/fill/all/fog.svg',
-
-'50n': 'https://basmilius.github.io/weather-icons/production/fill/all/fog.svg'
-
-};
-
-return iconMap[iconCode] || 'https://basmilius.github.io/weather-icons/production/fill/all/clear-day.svg';
-
-}
-
-
-
-function showCity(cityId) {
-
-document.querySelectorAll('.city-weather').forEach(city => {
-
-city.classList.remove('active');
-
-});
-
-document.querySelectorAll('.tab').forEach(tab => {
-
-tab.classList.remove('active');
-
-});
-
-document.getElementById(cityId).classList.add('active');
-
-document.querySelector(`.tab[onclick="showCity('${cityId}')"]`).classList.add('active');
-
-}
-
-
-
-// Inicializa com dados de todas as cidades
-
-cities.forEach(city => fetchWeatherData(city));
-
-
-
-// Atualiza os dados a cada 2 horas
-
-setInterval(() => {
-
-cities.forEach(city => fetchWeatherData(city));
-
-}, 7200000); // 2 horas em milissegundos
-
-</script>
+  </script>
 
 </body>
 
